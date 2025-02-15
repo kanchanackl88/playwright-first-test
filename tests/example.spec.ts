@@ -1,18 +1,32 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+//test.use({ browserName: 'firefox', channel: 'firefox' });
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
+test('User can login and logout successfully on Sauce Demo', async ({ page }) => {
+  // Go to the Sauce Demo login page
+  await page.waitForLoadState('networkidle');
+  await page.goto('https://www.saucedemo.com/');
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
-//adding test comment
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
+  // Enter username
+  const usernameInput = page.locator('[data-test="username"]');
+  await usernameInput.click();
+  await usernameInput.fill('standard_user');
 
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  // Enter password
+  const passwordInput = page.locator('[data-test="password"]');
+  await passwordInput.click();
+  await passwordInput.fill('secret_sauce');
+
+  // Click on the login button
+  await page.locator('[data-test="login-button"]').click();
+
+  // Verify login by checking if the Products title appears
+  await expect(page.locator('.title')).toHaveText('Products');
+
+  // Open the menu and click on the logout link
+  await page.getByRole('button', { name: 'Open Menu' }).click();
+  await page.locator('[data-test="logout-sidebar-link"]').click();
+
+  // Verify logout by checking if the login button is visible again
+  await expect(page.locator('[data-test="login-button"]')).toBeVisible();
 });
